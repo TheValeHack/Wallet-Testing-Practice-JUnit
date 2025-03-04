@@ -1,24 +1,43 @@
 import org.example.Card;
 import org.example.Human;
 import org.example.Wallet;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
+
 import static org.junit.jupiter.api.Assertions.*;
 import java.util.ArrayList;
 
 public class WalletTest {
-    private Wallet wallet;
-    private Human owner;
+    private static Wallet wallet;
+    private static Human owner;
 
-    @BeforeEach
-    void setUp() {
+
+    @BeforeAll
+    static void setUp(){
         wallet = new Wallet(5, 5, 5);
         owner = new Human("Irfan", 19);
+    }
+    @BeforeEach
+    void setUpMethod() {
+        wallet.setOwner(owner);
+    }
+
+    @AfterEach
+    void clearUpMethod(){
+        if (wallet.getOwner() != null) {
+            wallet.clearCards();
+            wallet.clearMoney();
+            wallet.clearOwner();
+        }
+    }
+
+    @AfterAll
+    static void clearUp(){
+        wallet = null;
+        owner = null;
     }
 
     @Test
     void testSetOwner() {
-        wallet.setOwner(owner);
         assertNotNull(wallet.getOwner());
     }
 
@@ -31,12 +50,14 @@ public class WalletTest {
 
     @Test
     void testAccessWithoutOwner() {
+        wallet.clearOwner();
         Exception exception = assertThrows(IllegalStateException.class, () -> wallet.showMoneys());
         assertEquals("Akses ditolak! Pemilik dompet belum diatur.", exception.getMessage());
     }
 
     @Test
     void testAddCardWithoutOwner() {
+        wallet.clearOwner();
         Card card = new Card("Visa", "Credit");
         Exception exception = assertThrows(IllegalStateException.class, () -> wallet.addCard(card));
         assertEquals("Akses ditolak! Pemilik dompet belum diatur.", exception.getMessage());
@@ -44,7 +65,6 @@ public class WalletTest {
 
     @Test
     void testAddCardWithOwner() {
-        wallet.setOwner(owner);
         Card card = new Card("Visa", "Credit");
         wallet.addCard(card);
         assertEquals(1, wallet.getCards().size());
@@ -52,7 +72,6 @@ public class WalletTest {
 
     @Test
     void testWithdrawCard() {
-        wallet.setOwner(owner);
         Card card1 = new Card("Visa", "Credit");
         Card card2 = new Card("Mastercard", "Debit");
         wallet.addCard(card1);
@@ -65,7 +84,6 @@ public class WalletTest {
 
     @Test
     void testWithdrawNonExistingCard() {
-        wallet.setOwner(owner);
         Card card = new Card("Visa", "Credit");
         wallet.addCard(card);
 
@@ -75,13 +93,13 @@ public class WalletTest {
 
     @Test
     void testAddPaperMoneyWithoutOwner() {
+        wallet.clearOwner();
         Exception exception = assertThrows(IllegalStateException.class, () -> wallet.addPaperMoney(50000, 2));
         assertEquals("Akses ditolak! Pemilik dompet belum diatur.", exception.getMessage());
     }
 
     @Test
     void testAddPaperMoneyWithOwner() {
-        wallet.setOwner(owner);
         wallet.addPaperMoney(50000, 2);
         assertEquals(2, wallet.getPaperMoneys().size());
         assertEquals(100000, wallet.getTotalPaperMoney());
@@ -89,13 +107,13 @@ public class WalletTest {
 
     @Test
     void testAddCoinMoneyWithoutOwner() {
+        wallet.clearOwner();
         Exception exception = assertThrows(IllegalStateException.class, () -> wallet.addCoinMoney(1000, 3));
         assertEquals("Akses ditolak! Pemilik dompet belum diatur.", exception.getMessage());
     }
 
     @Test
     void testAddCoinMoneyWithOwner() {
-        wallet.setOwner(owner);
         wallet.addCoinMoney(1000, 3);
         assertEquals(3, wallet.getCoinMoneys().size());
         assertEquals(3000, wallet.getTotalCoinMoney());
@@ -103,13 +121,13 @@ public class WalletTest {
 
     @Test
     void testWithdrawMoneyWithoutOwner() {
+        wallet.clearOwner();
         Exception exception = assertThrows(IllegalStateException.class, () -> wallet.withdrawMoney(10000));
         assertEquals("Akses ditolak! Pemilik dompet belum diatur.", exception.getMessage());
     }
 
     @Test
     void testWithdrawMoneyWithOwner() {
-        wallet.setOwner(owner);
         wallet.addPaperMoney(50000, 2);
         wallet.addCoinMoney(1000, 3);
         wallet.withdrawMoney(51000);
@@ -120,7 +138,6 @@ public class WalletTest {
 
     @Test
     void testWithdrawMoreThanAvailable() {
-        wallet.setOwner(owner);
         wallet.addPaperMoney(20000, 1);
         wallet.addCoinMoney(500, 2);
         wallet.withdrawMoney(30000);
@@ -131,7 +148,6 @@ public class WalletTest {
 
     @Test
     void testAddPaperMoneyExceedingLimit() {
-        wallet.setOwner(owner);
         wallet.addPaperMoney(50000, 5);
         Exception exception = assertThrows(IllegalStateException.class, () -> wallet.addPaperMoney(20000, 1));
         assertEquals("Tidak bisa menambahkan lebih banyak uang kertas, slot penuh.", exception.getMessage());
@@ -139,7 +155,6 @@ public class WalletTest {
 
     @Test
     void testAddCoinMoneyExceedingLimit() {
-        wallet.setOwner(owner);
         wallet.addCoinMoney(1000, 5);
         Exception exception = assertThrows(IllegalStateException.class, () -> wallet.addCoinMoney(500, 1));
         assertEquals("Tidak bisa menambahkan lebih banyak koin, slot penuh.", exception.getMessage());
@@ -147,7 +162,6 @@ public class WalletTest {
 
     @Test
     void testAddCardExceedingLimit() {
-        wallet.setOwner(owner);
         wallet.addCard(new Card("Visa", "Credit"));
         wallet.addCard(new Card("MasterCard", "Debit"));
         wallet.addCard(new Card("Amex", "Credit"));

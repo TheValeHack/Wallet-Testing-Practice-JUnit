@@ -182,6 +182,27 @@ public class Wallet {
         return totalCoinMoney;
     }
 
+    public void clearMoney() {
+        paperMoneys.clear();
+        coinMoneys.clear();
+        totalPaperMoney = 0;
+        totalCoinMoney = 0;
+        System.out.println("Semua uang telah dihapus dari dompet.");
+    }
+
+    public void clearCards() {
+        checkOwner();
+        cards.clear();
+        System.out.println("Semua kartu telah dihapus dari dompet.");
+    }
+
+
+    public void clearOwner() {
+        owner = null;
+        System.out.println("Pemilik dompet telah dihapus.");
+    }
+
+
     public void showMoneys() {
         checkOwner();
         System.out.println("Total nilai uang kertas: " + totalPaperMoney + " (" + paperMoneys.size() + " lembar)");
